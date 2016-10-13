@@ -1,0 +1,7 @@
+name: tcp_server
+version: 0.1.0
+
+authors:
+  - Jason Malcolm <jaciones@gmail.com>
+
+license: MIT
