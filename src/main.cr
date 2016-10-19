@@ -15,5 +15,14 @@ puts "Starting tcp server"
 puts "TCP listening on #{listen}:#{port}"
 puts "Logging TCP-IN" if debug_type == 1
 server = Tcp.new(listen, port.to_i, debug, debug_type)
+    Signal::USR1.trap do
+      begin
+        puts "RELOADING:"
+      rescue ex
+        puts "Error #{ex.inspect_with_backtrace}"
+      end
+    end
+
+
 server.listen()
 

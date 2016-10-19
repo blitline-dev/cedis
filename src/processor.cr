@@ -1,7 +1,16 @@
 class Processor
+  alias StringOrNil = String | Nil
+  @backup_auth : StringOrNil
+
   def initialize
-    @auth = ENV["AUTH_CODE"]? || "17hf+"
-    @atomic_index = 0
+    reload
+  end
+
+  def reload
+    env_auth = ENV["AUTH_CODE"]? || "17hf+"
+    split_auth = env_auth.split("|")
+    @auth = split_auth[0] as String
+    @backup_auth = split_auth.size > 1 ? split_auth[1] : nil
   end
 
   def process(data : String) : Hash(String, String) | ::Nil
@@ -28,8 +37,11 @@ class Processor
     raw_data = split_data[3].strip if split_data.size > 3
 
     unless @auth == auth
-      puts "Illegal Auth #{auth}"
+      unless @backup_auth == auth
+        puts "Illegal Auth #{auth}"
+      end
     end
+
     results["command"] = command
     results["key"] = key
     results["raw_data"] = raw_data

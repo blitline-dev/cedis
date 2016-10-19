@@ -100,7 +100,6 @@ class Action
   end
 
   def handle_list_create(data : Hash(String, String))
-    raise "List already exists with LCREATE #{data["key"]}" if @primary_map[data["key"]]?
     @primary_map[data["key"]] = DataStruct.new
   end
 
@@ -109,7 +108,6 @@ class Action
   end
 
   def handle_hash_create(data : Hash(String, String))
-    raise "List already exists with HCREATE #{data["key"]}" if @primary_map[data["key"]]?
     @primary_map[data["key"]] = DataStruct.new
   end
 

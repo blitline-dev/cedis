@@ -3,10 +3,11 @@ require "socket"
 require "./processor.cr"
 require "./action.cr"
 require "json"
+require "signal"
 
 class Tcp
-  TOTAL_FIBERS = 200
-  MAX_LENGTH = 3_000_000
+  TOTAL_FIBERS = 40
+  MAX_LENGTH = 5_000_000
 
   def initialize(@host : String, @port : Int32, @debug : Bool, @debug_type : Int32)
 		@connections = 0
@@ -55,9 +56,11 @@ class Tcp
         end
 			rescue ex
 				p ex.message
-				p "Data:#{data}"
+				p "DataErr:#{data}"
  	    end
       socket.flush
+    else
+      p "Data too big! #{data[0..20]}" if data
 	  end
 	end
 
