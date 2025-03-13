@@ -1,17 +1,16 @@
 class Action
-  
   class DataStruct
+    property created_at : Time
 
-    property created_at
     def initialize
       @int_store = Int32.new(0)
       @hash_store = Hash(String, String).new
       @array_store = Array(String).new
-      @created_at = Time.now
+      @created_at = Time.utc
     end
 
     def parse_as_int(raw_data : String) : Int32
-       raw_data = 0 if raw_data.to_s.empty?
+      raw_data = 0 if raw_data.to_s.empty?
 
       return raw_data.to_i
     end
@@ -39,13 +38,14 @@ class Action
         return_value = @int_store.to_s
       when "GETINT"
         return_value = @int_store.to_s
+      when "EXISTS"
+        return_value = @hash_store.has_key?(parse_as_string(raw_data)) ? "1" : "0"
       when "INCR"
         delta = parse_as_int(raw_data.to_s)
         delta = 1 if delta == 0
         @int_store += delta
         return_value = @int_store.to_s
       when "DECR"
-
         delta = parse_as_int(raw_data.to_s)
         delta = 1 if delta == 0
         @int_store -= delta
@@ -55,7 +55,7 @@ class Action
         @hash_store[value[0]] = value[1] if value && value.size > 1
         return_value = "OK"
       when "GET"
-        return_value = @hash_store[parse_as_string(raw_data)] 
+        return_value = @hash_store[parse_as_string(raw_data)]
       end
       return return_value
     end
@@ -83,7 +83,7 @@ class Action
           skip = true
         end
         data_struct = @primary_map[key]?
-        if data_struct 
+        if data_struct
           action_val = data_struct.action(data["command"], data["raw_data"])
           return_val = action_val unless skip
         else
@@ -114,12 +114,11 @@ class Action
   def watch
     spawn do
       loop do
-        @primary_map.delete_if do | key, value |
-          value.created_at < Time.now - 1.day
+        @primary_map.reject! do |key, value|
+          value.created_at < Time.utc - 1.day
         end
         sleep 60
       end
     end
   end
-
 end

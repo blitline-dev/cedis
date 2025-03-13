@@ -1,6 +1,7 @@
 class Processor
   alias StringOrNil = String | Nil
   @backup_auth : StringOrNil
+  @auth : StringOrNil
 
   def initialize
     reload
@@ -9,7 +10,7 @@ class Processor
   def reload
     env_auth = ENV["AUTH_CODE"]? || "17hf+"
     split_auth = env_auth.split("|")
-    @auth = split_auth[0] as String
+    @auth = split_auth[0].to_s
     @backup_auth = split_auth.size > 1 ? split_auth[1] : nil
   end
 
@@ -47,6 +48,4 @@ class Processor
     results["raw_data"] = raw_data
     return results
   end
-
-
 end
